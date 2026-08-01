@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Fuego y Barril · Caja diaria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  :root{
+    --bg: #16110d;
+    --bg-2: #1c1611;
+    --surface: #241c16;
+    --surface-2: #2d241c;
+    --surface-3: #382c22;
+    --ember: #ff5a1f;
+    --ember-dark: #c1390f;
+    --gold: #dba33f;
+    --gold-dim: #9d7a3a;
+    --ash: #f4ece0;
+    --ash-dim: #b9a996;
+    --ash-dimmer: #8a7a68;
+    --smoke: #4a3c30;
+    --danger: #b8452f;
+    --danger-bg: rgba(184,69,47,0.13);
+    --green: #7c9a5c;
+    --radius: 14px;
+    --radius-sm: 9px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -5%, rgba(255,90,31,0.10), transparent 60%),
+      radial-gradient(ellipse 700px 400px at 100% 0%, rgba(219,163,63,0.07), transparent 60%),
+      var(--bg);
+    color: var(--ash);
+    font-family: 'Work Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection{ background: var(--ember); color: #16110d; }
+  .num{ font-family:'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+
+  /* ---------- shell ---------- */
+  .shell{ max-width: 980px; margin: 0 auto; padding: 0 16px 64px; }
+  header.top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 22px 0 14px;
+    border-bottom: 1px solid var(--smoke);
+    margin-bottom: 18px;
+    position: sticky; top:0; z-index: 20;
+    background: linear-gradient(var(--bg) 82%, transparent);
+    padding-top: 22px;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand .mark{
+    width:34px; height:34px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, var(--gold), var(--ember) 55%, var(--ember-dark) 100%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 0 18px rgba(255,90,31,0.45);
+    flex-shrink:0;
+  }
+  .brand .mark svg{ width:18px; height:18px; }
+  .brand h1{
+    font-family:'Bebas Neue', sans-serif; letter-spacing: 1.5px;
+    font-size: 26px; margin:0; line-height:1;
+    color: var(--ash);
+  }
+  .brand h1 span{ color: var(--ember); }
+  .brand small{ display:block; color:var(--ash-dimmer); font-size:11px; letter-spacing:0.5px; margin-top:2px;}
+
+  nav.tabs{ display:flex; gap:4px; overflow-x:auto; padding-bottom:2px; }
+  nav.tabs button{
+    display:flex; align-items:center; gap:6px;
+    background:none; border:none; color: var(--ash-dimmer);
+    font-family:'Work Sans',sans-serif; font-weight:600; font-size: 13.5px;
+    padding: 9px 13px; border-radius: 999px; cursor:pointer; white-space:nowrap;
+    transition: all .15s ease;
+  }
+  nav.tabs button svg{ width:15px; height:15px; opacity:0.8;}
+  nav.tabs button:hover{ color:var(--ash); background: var(--surface); }
+  nav.tabs button.active{ color:#1a130d; background: linear-gradient(135deg, var(--gold), var(--ember)); }
+  nav.tabs button.active svg{ opacity:1; }
+
+  h2.section-title{
+    font-family:'Bebas Neue', sans-serif; font-size: 21px; letter-spacing: 0.8px;
+    color: var(--ash); margin: 0 0 12px; display:flex; align-items:center; gap:8px;
+  }
+  h2.section-title .bar{ width:4px; height:16px; background: var(--ember); border-radius:2px; display:inline-block;}
+
+  .card{
+    background: var(--surface);
+    border: 1px solid var(--smoke);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .row{ display:flex; gap:12px; flex-wrap:wrap; }
+  .muted{ color: var(--ash-dimmer); font-size: 13px; }
+
+  input, select{
+    background: var(--bg-2);
+    border: 1px solid var(--smoke);
+    color: var(--ash);
+    border-radius: var(--radius-sm);
+    padding: 9px 11px;
+    font-family:'Work Sans',sans-serif;
+    font-size: 14.5px;
+    outline:none;
+    transition: border-color .15s ease;
+  }
+  input.num-input{ font-family:'JetBrains Mono', monospace; }
+  input:focus, select:focus{ border-color: var(--ember); }
+  input[type=date], input[type=month]{ color-scheme: dark; }
+  label.field-label{ font-size:11.5px; text-transform:uppercase; letter-spacing:0.6px; color:var(--ash-dimmer); margin-bottom:5px; display:block; font-weight:600;}
+
+  button.btn{
+    font-family:'Work Sans',sans-serif; font-weight:700; font-size:13.5px;
+    border-radius: var(--radius-sm); border:none; cursor:pointer;
+    padding: 10px 16px; transition: transform .1s ease, filter .15s ease;
+  }
+  button.btn:active{ transform: scale(0.97); }
+  .btn-ember{ background: linear-gradient(135deg, var(--gold), var(--ember)); color:#1a130d; box-shadow: 0 0 0 rgba(255,90,31,0); }
+  .btn-ember:hover{ filter: brightness(1.08); }
+  .btn-ghost{ background: var(--surface-2); color: var(--ash); border:1px solid var(--smoke); }
+  .btn-ghost:hover{ background: var(--surface-3); }
+  .btn-danger{ background: var(--danger-bg); color: var(--danger); border:1px solid rgba(184,69,47,0.35); }
+  .btn-sm{ padding: 6px 10px; font-size:12px; }
+  .icon-btn{ background:none; border:none; cursor:pointer; color:var(--ash-dimmer); padding:4px; display:flex; align-items:center; border-radius:6px; }
+  .icon-btn:hover{ color: var(--danger); background: var(--danger-bg); }
+  .icon-btn svg{ width:15px; height:15px; }
+
+  /* date header */
+  .date-nav{ display:flex; align-items:center; gap:8px; }
+  .date-nav button.arrow{ background: var(--surface-2); border:1px solid var(--smoke); color:var(--ash); width:32px; height:32px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .date-nav button.arrow:hover{ background:var(--surface-3); }
+  .date-nav button.arrow svg{ width:15px; height:15px; }
+  .date-display{ font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:0.5px; color:var(--ash); text-transform:capitalize; }
+  .today-pill{ font-size:10.5px; background: var(--surface-3); color:var(--gold); padding:2px 8px; border-radius:999px; font-weight:700; letter-spacing:0.4px; margin-left:6px; vertical-align: 2px;}
+
+  /* base */
+  .base-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .base-box{ background: var(--bg-2); border:1px dashed var(--smoke); border-radius: var(--radius-sm); padding:12px; }
+  .base-box input{ width:100%; }
+  .suggest-note{ font-size:11.5px; color: var(--gold-dim); margin-top:5px; }
+
+  /* products quick add */
+  .prod-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap:10px; }
+  .prod-card{ background: var(--surface-2); border:1px solid var(--smoke); border-radius: var(--radius-sm); padding:11px; display:flex; flex-direction:column; gap:8px; }
+  .prod-card .pname{ font-weight:700; font-size:13.5px; color:var(--ash); line-height:1.25; }
+  .prod-card .pprice{ font-size:12px; color:var(--gold); }
+  .qty-row{ display:flex; align-items:center; gap:6px; }
+  .qty-row button{ width:24px; height:24px; border-radius:6px; border:1px solid var(--smoke); background:var(--bg-2); color:var(--ash); cursor:pointer; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center;}
+  .qty-row span{ min-width:16px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:13px;}
+  .pay-row{ display:flex; gap:6px; }
+  .pay-row button{ flex:1; font-size:11.5px; padding:7px 4px; border-radius:7px; border:none; cursor:pointer; font-weight:700; }
+  .pay-efectivo{ background: rgba(124,154,92,0.16); color: var(--green); }
+  .pay-efectivo:hover{ background: rgba(124,154,92,0.28); }
+  .pay-transfer{ background: rgba(219,163,63,0.16); color: var(--gold); }
+  .pay-transfer:hover{ background: rgba(219,163,63,0.28); }
+
+  .otro-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; margin-top:14px; padding-top:14px; border-top:1px solid var(--smoke); }
+  .otro-row .field{ flex:1; min-width:120px; }
+  .otro-row input{ width:100%; }
+
+  .gasto-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; }
+  .gasto-row .field{ flex:1; min-width:130px; }
+  .gasto-row input{ width:100%; }
+
+  /* ledger */
+  .ledger{ display:grid; grid-template-columns: 1fr 1fr; gap:0; }
+  .ledger-col{ padding: 4px 14px; }
+  .ledger-col:first-child{ border-right: 1px solid var(--smoke); }
+  .ledger-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+  .ledger-head h3{ font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:0.5px; margin:0; color:var(--ash-dim); }
+  .ledger-head .sum{ font-size:13.5px; }
+  .ledger-empty{ color: var(--ash-dimmer); font-size:12.5px; padding: 14px 0; text-align:center; }
+  .line-item{ display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px dotted var(--smoke); gap:8px; }
+  .line-item:last-child{ border-bottom:none; }
+  .li-left{ display:flex; flex-direction:column; min-width:0; }
+  .li-name{ font-size:13.5px; color:var(--ash); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .li-meta{ font-size:11px; color:var(--ash-dimmer); }
+  .li-right{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .li-amount{ font-size:13.5px; }
+  .amount-pos{ color: var(--ash); }
+  .amount-neg{ color: var(--danger); }
+
+  @media (max-width:700px){
+    .ledger{ grid-template-columns:1fr; }
+    .ledger-col:first-child{ border-right:none; border-bottom:1px solid var(--smoke); padding-bottom:14px; margin-bottom:10px;}
+    .base-grid{ grid-template-columns:1fr; }
+  }
+
+  /* totals */
+  .totals-card{ background: linear-gradient(135deg, rgba(255,90,31,0.10), rgba(219,163,63,0.06)); border:1px solid rgba(219,163,63,0.3); }
+  .totals-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap:14px; }
+  .total-item .t-label{ font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--ash-dimmer); font-weight:600; margin-bottom:4px;}
+  .total-item .t-value{ font-family:'JetBrains Mono',monospace; font-size:21px; font-weight:700; color:var(--ash); }
+  .total-item.hero .t-value{ color: var(--gold); font-size:26px; }
+  .total-item.neg .t-value{ color: var(--danger); }
+
+  /* history */
+  .hist-row{ display:flex; align-items:center; justify-content:space-between; padding:13px 14px; border-radius: var(--radius-sm); background:var(--surface-2); border:1px solid var(--smoke); margin-bottom:8px; cursor:pointer; transition: background .12s ease;}
+  .hist-row:hover{ background: var(--surface-3); }
+  .hist-date{ font-weight:700; font-size:14px; text-transform:capitalize; }
+  .hist-date .dow{ color:var(--ash-dimmer); font-weight:500; font-size:12px; margin-left:6px;}
+  .hist-figs{ display:flex; gap:16px; }
+  .hist-fig{ text-align:right; }
+  .hist-fig .l{ font-size:10px; color:var(--ash-dimmer); text-transform:uppercase; }
+  .hist-fig .v{ font-family:'JetBrains Mono',monospace; font-size:13.5px; }
+
+  /* reports */
+  .month-picker{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .chart-wrap{ overflow-x:auto; }
+  .bar-tooltip-label{ font-size:11px; }
+  .legend{ display:flex; gap:16px; margin-top:10px; flex-wrap:wrap; }
+  .legend-item{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ash-dim); }
+  .legend-dot{ width:9px; height:9px; border-radius:2px; }
+
+  .top-prod-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px dotted var(--smoke); }
+  .top-prod-row:last-child{ border-bottom:none; }
+  .top-rank{ font-family:'Bebas Neue',sans-serif; color: var(--ember); font-size:18px; width:22px; }
+  .top-name{ flex:1; font-size:13.5px; }
+  .top-qty{ font-size:11.5px; color:var(--ash-dimmer); }
+  .top-total{ font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--gold); }
+
+  /* products tab */
+  .prod-list-row{ display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px dotted var(--smoke); }
+  .prod-list-row input{ padding:7px 9px; font-size:13.5px; }
+  .prod-list-row .pname-input{ flex:1; }
+  .prod-list-row .pprice-input{ width:120px; }
+
+  .empty-state{ text-align:center; padding: 40px 20px; color: var(--ash-dimmer); }
+  .empty-state svg{ width:40px; height:40px; opacity:0.35; margin-bottom:10px; }
+
+  .toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px);
+    background: var(--surface-3); border:1px solid var(--smoke); color:var(--ash);
+    padding:10px 18px; border-radius: 999px; font-size:13px; box-shadow: var(--shadow);
+    opacity:0; transition: all .25s ease; pointer-events:none; z-index:100;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .loading-screen{ display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; color:var(--ash-dimmer); gap:12px;}
+  .ember-spin{ width:30px; height:30px; border-radius:50%; border:3px solid var(--smoke); border-top-color:var(--ember); animation: spin 0.8s linear infinite;}
+  @keyframes spin{ to{ transform: rotate(360deg);} }
+
+  .footer-note{ text-align:center; color:var(--ash-dimmer); font-size:11.5px; margin-top:26px; line-height:1.6; }
+
+  /* user badge */
+  #userBadge{ display:flex; align-items:center; gap:8px; }
+  .user-chip{ display:flex; align-items:center; gap:8px; background:var(--surface-2); border:1px solid var(--smoke); border-radius:999px; padding:5px 6px 5px 12px; }
+  .user-chip .uname{ font-size:12.5px; font-weight:700; color:var(--ash); }
+  .user-chip .urole{ font-size:9.5px; color:var(--gold); text-transform:uppercase; letter-spacing:0.4px; display:block; }
+  .user-chip button{ background:var(--surface-3); border:none; color:var(--ash-dimmer); width:24px; height:24px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .user-chip button:hover{ color:var(--danger); }
+  .user-chip button svg{ width:12px; height:12px; }
+
+  /* login screen */
+  .login-wrap{ min-height:80vh; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .login-card{ background:var(--surface); border:1px solid var(--smoke); border-radius:var(--radius); padding:32px 28px; box-shadow:var(--shadow); width:100%; max-width:320px; text-align:center; }
+  .login-card h2{ font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:0.6px; margin:0 0 4px; color:var(--ash); }
+  .login-card p.sub{ color:var(--ash-dimmer); font-size:12.5px; margin:0 0 20px; }
+  .pin-display{ display:flex; gap:10px; justify-content:center; margin-bottom:20px; }
+  .pin-dot{ width:14px; height:14px; border-radius:50%; border:1.5px solid var(--smoke); background:transparent; transition: all .1s ease; }
+  .pin-dot.filled{ background: linear-gradient(135deg,var(--gold),var(--ember)); border-color:transparent; }
+  .keypad{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .keypad button{ background:var(--surface-2); border:1px solid var(--smoke); color:var(--ash); font-size:19px; font-weight:600; padding:14px 0; border-radius:12px; cursor:pointer; font-family:'JetBrains Mono',monospace; }
+  .keypad button:hover{ background:var(--surface-3); }
+  .keypad button:active{ transform:scale(0.95); }
+  .keypad button.wide{ font-size:12px; color:var(--ash-dimmer); }
+  .login-error{ color:var(--danger); font-size:12.5px; margin-top:14px; min-height:16px; }
+  .login-hint{ color:var(--ash-dimmer); font-size:11px; margin-top:18px; line-height:1.6; }
+
+  /* equipo tab */
+  .team-row{ display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px dotted var(--smoke); }
+  .team-row input{ padding:7px 9px; font-size:13.5px; }
+  .team-row .tname{ flex:1; }
+  .team-row .tcode{ width:90px; font-family:'JetBrains Mono',monospace; }
+  .role-badge{ font-size:10px; text-transform:uppercase; letter-spacing:0.4px; padding:3px 8px; border-radius:999px; font-weight:700; }
+  .role-badge.admin{ background:rgba(219,163,63,0.18); color:var(--gold); }
+  .role-badge.trabajador{ background:rgba(124,154,92,0.15); color:var(--green); }
+
+  /* cuadre de caja */
+  .cuadre-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:14px; align-items:end; }
+  .cuadre-result{ border-radius: var(--radius-sm); padding:14px 16px; margin-top:16px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .cuadre-result.ok{ background: rgba(124,154,92,0.13); border:1px solid rgba(124,154,92,0.35); }
+  .cuadre-result.falta{ background: var(--danger-bg); border:1px solid rgba(184,69,47,0.35); }
+  .cuadre-result.sobra{ background: rgba(219,163,63,0.13); border:1px solid rgba(219,163,63,0.35); }
+  .cuadre-result .cr-label{ font-size:12.5px; color:var(--ash-dim); }
+  .cuadre-result .cr-value{ font-family:'JetBrains Mono',monospace; font-size:19px; font-weight:700; }
+  .cuadre-result.ok .cr-value{ color: var(--green); }
+  .cuadre-result.falta .cr-value{ color: var(--danger); }
+  .cuadre-result.sobra .cr-value{ color: var(--gold); }
+  .cuadre-empty{ color:var(--ash-dimmer); font-size:12.5px; margin-top:10px; }
+  .cuadre-meta{ font-size:11px; color:var(--ash-dimmer); margin-top:8px; }
+  @media (max-width:700px){ .cuadre-grid{ grid-template-columns:1fr; } }
+
+  /* calculator */
+  .hidden{ display:none !important; }
+  .calc-fab{
+    position: fixed; right:20px; bottom:20px; z-index:60;
+    width:54px; height:54px; border-radius:50%; border:none; cursor:pointer;
+    background: linear-gradient(135deg, var(--gold), var(--ember));
+    color:#1a130d; display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 6px 20px rgba(255,90,31,0.4);
+  }
+  .calc-fab svg{ width:24px; height:24px; }
+  .calc-fab:active{ transform: scale(0.94); }
+  .calc-backdrop{
+    position:fixed; inset:0; background:rgba(10,7,5,0.6); backdrop-filter: blur(2px);
+    z-index:70; display:flex; align-items:flex-end; justify-content:center;
+  }
+  @media (min-width:520px){ .calc-backdrop{ align-items:center; } }
+  .calc-modal{
+    background: var(--surface); border:1px solid var(--smoke); border-radius: 18px 18px 0 0;
+    width:100%; max-width:340px; box-shadow: var(--shadow); overflow:hidden;
+  }
+  @media (min-width:520px){ .calc-modal{ border-radius: var(--radius); } }
+  .calc-modal-head{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid var(--smoke); }
+  .calc-modetabs{ display:flex; gap:4px; background:var(--bg-2); padding:3px; border-radius:999px; }
+  .calc-modetabs button{ background:none; border:none; color:var(--ash-dimmer); font-size:12.5px; font-weight:700; padding:6px 12px; border-radius:999px; cursor:pointer; }
+  .calc-modetabs button.active{ background: linear-gradient(135deg,var(--gold),var(--ember)); color:#1a130d; }
+  #calcBody{ padding:16px; }
+
+  .calc-display{ background:var(--bg-2); border:1px solid var(--smoke); border-radius:var(--radius-sm); padding:16px 14px; text-align:right; margin-bottom:12px; }
+  .calc-display .expr{ font-size:12px; color:var(--ash-dimmer); min-height:14px; font-family:'JetBrains Mono',monospace; }
+  .calc-display .val{ font-size:28px; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--ash); overflow-x:auto; white-space:nowrap; }
+  .calc-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .calc-grid button{ padding:15px 0; border-radius:11px; border:none; cursor:pointer; font-size:17px; font-weight:600; font-family:'JetBrains Mono',monospace; background:var(--surface-2); color:var(--ash); border:1px solid var(--smoke); }
+  .calc-grid button:active{ transform:scale(0.94); }
+  .calc-grid button.op{ background: rgba(219,163,63,0.15); color:var(--gold); }
+  .calc-grid button.eq{ background: linear-gradient(135deg,var(--gold),var(--ember)); color:#1a130d; grid-row: span 2; height:100%; }
+  .calc-grid button.fn{ background: var(--danger-bg); color: var(--danger); font-size:13px; }
+  .calc-grid button.zero{ grid-column: span 2; }
+
+  .vuelto-field{ margin-bottom:14px; }
+  .vuelto-field input{ width:100%; font-size:20px; padding:12px; }
+  .vuelto-result{ border-radius: var(--radius-sm); padding:16px; text-align:center; margin-top:6px; }
+  .vuelto-result .vr-label{ font-size:11.5px; text-transform:uppercase; letter-spacing:0.5px; color:var(--ash-dimmer); }
+  .vuelto-result .vr-value{ font-family:'JetBrains Mono',monospace; font-size:30px; font-weight:700; margin-top:4px; }
+  .vuelto-result.ok{ background: rgba(124,154,92,0.13); border:1px solid rgba(124,154,92,0.35); }
+  .vuelto-result.ok .vr-value{ color:var(--green); }
+  .vuelto-result.bad{ background: var(--danger-bg); border:1px solid rgba(184,69,47,0.35); }
+  .vuelto-result.bad .vr-value{ color:var(--danger); }
+
+  /* pedido modal */
+  .calc-modal.wide{ max-width: 480px; max-height:88vh; display:flex; flex-direction:column; }
+  #pedidoBody{ padding:16px; overflow-y:auto; }
+  .pedido-prod-grid{ display:grid; grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); gap:8px; margin-bottom:16px; }
+  .pedido-prod{ background:var(--surface-2); border:1px solid var(--smoke); border-radius:var(--radius-sm); padding:9px; display:flex; flex-direction:column; gap:6px; }
+  .pedido-prod .ppname{ font-size:12.5px; font-weight:700; color:var(--ash); line-height:1.25; }
+  .pedido-prod .ppprice{ font-size:11px; color:var(--gold); }
+  .pedido-prod .qty-row{ margin-top:2px; }
+  .pedido-prod .qty-row button{ width:22px; height:22px; font-size:13px; }
+  .pedido-cart{ border-top:1px solid var(--smoke); padding-top:12px; margin-bottom:12px; }
+  .pedido-cart-empty{ color:var(--ash-dimmer); font-size:12.5px; text-align:center; padding:14px 0; }
+  .pedido-cart-row{ display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px dotted var(--smoke); gap:8px; }
+  .pedido-cart-row .pcname{ font-size:13px; color:var(--ash); }
+  .pedido-cart-row .pcqty{ font-size:11.5px; color:var(--ash-dimmer); }
+  .pedido-cart-row .pcsub{ font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--ash); }
+  .pedido-total{ display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-top:1px solid var(--smoke); margin-top:4px; }
+  .pedido-total .pt-label{ font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:0.5px; color:var(--ash-dim); }
+  .pedido-total .pt-value{ font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:700; color:var(--gold); }
+  .pedido-pay{ display:flex; gap:8px; margin:12px 0; }
+  .pedido-pay button{ flex:1; padding:11px 0; border-radius:10px; border:1px solid var(--smoke); background:var(--surface-2); color:var(--ash-dim); font-weight:700; font-size:13px; cursor:pointer; }
+  .pedido-pay button.sel-efectivo{ background: rgba(124,154,92,0.18); color:var(--green); border-color: rgba(124,154,92,0.4); }
+  .pedido-pay button.sel-transferencia{ background: rgba(219,163,63,0.18); color:var(--gold); border-color: rgba(219,163,63,0.4); }
+  .pedido-dispatch{ width:100%; padding:13px 0; font-size:14.5px; }
+  .pedido-dispatch:disabled{ opacity:0.45; cursor:not-allowed; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <div class="brand">
+      <div>
+        <h1>FUEGO <span>&</span> BARRIL</h1>
+        <small id="dateSubtitle">CAJA DIARIA</small>
+      </div>
+    </div>
+    <div id="userBadge"></div>
+  </header>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <main id="app">
+    <div class="loading-screen">
+      <div class="ember-spin"></div>
+      <div>Cargando caja...</div>
+    </div>
+  </main>
+
+  <div class="footer-note">Datos compartidos entre todos los socios · Fuego y Barril</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<button id="calcFab" class="calc-fab hidden" title="Calculadora">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="10"/><line x1="12" y1="10" x2="12" y2="10"/><line x1="16" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="16" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="8" y2="18"/><line x1="12" y1="18" x2="12" y2="18"/><line x1="16" y1="18" x2="16" y2="18"/></svg>
+</button>
+
+<div id="calcBackdrop" class="calc-backdrop hidden">
+  <div class="calc-modal">
+    <div class="calc-modal-head">
+      <div class="calc-modetabs">
+        <button data-mode="basic" class="active">Calculadora</button>
+        <button data-mode="vueltas">Vueltas</button>
+      </div>
+      <button id="calcClose" class="icon-btn" style="color:var(--ash-dimmer);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="calcBody"></div>
+  </div>
+</div>
+
+<div id="pedidoBackdrop" class="calc-backdrop hidden">
+  <div class="calc-modal wide">
+    <div class="calc-modal-head">
+      <div style="font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:0.5px; color:var(--ash);">Nuevo pedido</div>
+      <button id="pedidoClose" class="icon-btn" style="color:var(--ash-dimmer);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="pedidoBody"></div>
+  </div>
+</div>
+
+<script>
+/* ============================= STATE ============================= */
+const state = {
+  tab: 'hoy',
+  products: [],
+  usuarios: [],
+  currentUser: null,
+  pinInput: '',
+  loginError: '',
+  selectedDate: todayStr(),
+  dayCache: {},           // date -> dayData
+  historyDates: [],       // list of dates that have data (desc)
+  reportMonth: monthStr(new Date()),
+  ready: false,
+};
+
+const DEFAULT_USUARIOS = [
+  { id: uid(), nombre: 'Administrador', codigo: '1234', rol: 'admin' },
+];
+
+const DEFAULT_PRODUCTS = [
+  { id: uid(), nombre: 'Picada personal', precio: 25000 },
+  { id: uid(), nombre: 'Picada mediana', precio: 45000 },
+  { id: uid(), nombre: 'Picada grande', precio: 65000 },
+  { id: uid(), nombre: 'Shawarma', precio: 18000 },
+  { id: uid(), nombre: 'Nachos', precio: 15000 },
+  { id: uid(), nombre: 'Hamburguesa', precio: 20000 },
+  { id: uid(), nombre: 'Gaseosa personal', precio: 4000 },
+  { id: uid(), nombre: 'Agua', precio: 2500 },
+];
+
+/* ============================= UTILS ============================= */
+function uid(){ return Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4); }
+function todayStr(){ return fmtDateKey(new Date()); }
+function fmtDateKey(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+function monthStr(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+function fmt(n){ n = Math.round(n||0); const neg = n<0; n=Math.abs(n); return (neg?'-':'') + '$' + n.toLocaleString('es-CO'); }
+function fmtPlain(n){ return Math.round(n||0).toLocaleString('es-CO'); }
+
+/* Formats a text input live with thousands separators (5.000 / 50.000 / 500.000) */
+function formatThousands(el){
+  el.setAttribute('type','text');
+  el.setAttribute('inputmode','numeric');
+  el.addEventListener('input', ()=>{
+    let digits = el.value.replace(/[^\d]/g,'');
+    digits = digits.replace(/^0+(?=\d)/,'');
+    el.value = digits === '' ? '' : Number(digits).toLocaleString('es-CO');
+  });
+}
+function rawNumber(el){
+  const digits = String(el.value||'').replace(/[^\d]/g,'');
+  return digits ? Number(digits) : 0;
+}
+function debounce(fn, ms){
+  let h; return (...args)=>{ clearTimeout(h); h=setTimeout(()=>fn(...args), ms); };
+}
+function parseDate(key){ const [y,m,d]=key.split('-').map(Number); return new Date(y, m-1, d); }
+function addDays(key, n){ const d=parseDate(key); d.setDate(d.getDate()+n); return fmtDateKey(d); }
+function dateLabel(key){
+  const d = parseDate(key);
+  return d.toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+function shortDateLabel(key){
+  const d = parseDate(key);
+  return d.toLocaleDateString('es-CO', { day:'2-digit', month:'short' });
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._h);
+  showToast._h = setTimeout(()=> t.classList.remove('show'), 2200);
+}
+function emptyDay(){ return { base:{ efectivo:0, transferencia:0 }, ventas:[], gastos:[], cierre:{ contado:null, by:null, hora:null } }; }
+
+/* ============================= STORAGE (Supabase) ============================= */
+// 1) Crea un proyecto gratis en https://supabase.com
+// 2) En el SQL editor de tu proyecto, corre la tabla que te di en las instrucciones
+// 3) En Project Settings > API copia "Project URL" y "anon public key" y pégalos aquí abajo:
+const SUPABASE_URL = 'https://dqsowvzvfjsbatwnwoah.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_4McDhqjl5xe9wwQIcH7UhQ_MJLoxisV';
+
+const supabaseConfigured = !SUPABASE_URL.startsWith('PON_AQUI') && !SUPABASE_ANON_KEY.startsWith('PON_AQUI');
+const sb = supabaseConfigured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+async function storageGet(key){
+  try{
+    const { data, error } = await sb.from('kv_store').select('value').eq('key', key).maybeSingle();
+    if(error) throw error;
+    return data ? data.value : null;
+  } catch(e){ console.error('storage get failed', e); return null; }
+}
+async function storageSet(key, value){
+  try{
+    const { error } = await sb.from('kv_store').upsert({ key, value, updated_at: new Date().toISOString() });
+    if(error) throw error;
+    return true;
+  } catch(e){ console.error('storage set failed', e); showToast('No se pudo guardar. Revisa tu conexión.'); return false; }
+}
+async function storageListPrefix(prefix){
+  try{
+    const { data, error } = await sb.from('kv_store').select('key').ilike('key', prefix+'%');
+    if(error) throw error;
+    return data ? data.map(r=>r.key) : [];
+  } catch(e){ console.error('storage list failed', e); return []; }
+}
+
+async function loadProducts(){
+  let p = await storageGet('productos');
+  if(!p){ p = DEFAULT_PRODUCTS; await storageSet('productos', p); }
+  const names = p.map(x=>x.nombre.toLowerCase());
+  let changed = false;
+  if(!names.some(n=>n.includes('gaseosa'))){ p.push({ id: uid(), nombre:'Gaseosa personal', precio:4000 }); changed = true; }
+  if(!names.some(n=>n.includes('agua'))){ p.push({ id: uid(), nombre:'Agua', precio:2500 }); changed = true; }
+  if(changed) await storageSet('productos', p);
+  state.products = p;
+}
+async function saveProducts(){ await storageSet('productos', state.products); }
+
+async function loadUsuarios(){
+  let u = await storageGet('usuarios');
+  if(!u || u.length===0){ u = DEFAULT_USUARIOS; await storageSet('usuarios', u); }
+  state.usuarios = u;
+}
+async function saveUsuarios(){ await storageSet('usuarios', state.usuarios); }
+
+async function loadDay(dateKey){
+  if(state.dayCache[dateKey]) return state.dayCache[dateKey];
+  let d = await storageGet('dia:'+dateKey);
+  if(!d){
+    d = emptyDay();
+    const suggestion = await suggestBase(dateKey);
+    d.base = suggestion;
+  }
+  if(!d.cierre) d.cierre = { contado:null, by:null, hora:null };
+  state.dayCache[dateKey] = d;
+  return d;
+}
+async function saveDay(dateKey){
+  const d = state.dayCache[dateKey];
+  if(!d) return;
+  await storageSet('dia:'+dateKey, d);
+  if(!state.historyDates.includes(dateKey)){
+    state.historyDates.push(dateKey);
+    state.historyDates.sort().reverse();
+  }
+}
+
+async function suggestBase(dateKey){
+  // try previous calendar day, else most recent day before this one
+  const allKeys = await storageListPrefix('dia:');
+  const dates = allKeys.map(k=>k.replace('dia:','')).filter(d=>d < dateKey).sort();
+  if(dates.length === 0) return { efectivo:0, transferencia:0 };
+  const lastDate = dates[dates.length-1];
+  const lastData = await storageGet('dia:'+lastDate);
+  if(!lastData) return { efectivo:0, transferencia:0 };
+  const t = computeTotals(lastData);
+  return { efectivo: t.totalEfectivo, transferencia: t.ventasTransferencia };
+}
+
+async function loadHistoryDates(){
+  const keys = await storageListPrefix('dia:');
+  state.historyDates = keys.map(k=>k.replace('dia:','')).sort().reverse();
+}
+
+/* ============================= CALC ============================= */
+function computeTotals(day){
+  let ventasEfectivo=0, ventasTransferencia=0;
+  for(const v of day.ventas){
+    if(v.medio === 'efectivo') ventasEfectivo += v.monto;
+    else ventasTransferencia += v.monto;
+  }
+  const gastosTotal = day.gastos.reduce((s,g)=>s+g.monto,0);
+  const totalEfectivo = ventasEfectivo - gastosTotal;
+  const totalGeneral = totalEfectivo + ventasTransferencia;
+  const cajaEsperada = (day.base.efectivo||0) + totalEfectivo;
+  return { ventasEfectivo, ventasTransferencia, gastosTotal, totalEfectivo, totalGeneral, cajaEsperada };
+}
+
+/* ============================= ICONS ============================= */
+const ICONS = {
+  hoy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
+  historial: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-7 3L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 3"/></svg>`,
+  reportes: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>`,
+  productos: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>`,
+  notas: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h13l3 3v13a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M8 9h8"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>`,
+  equipo: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0111 0"/><circle cx="17.5" cy="9" r="2.6"/><path d="M15 20a4.5 4.5 0 018.5-2.2"/></svg>`,
+  logout: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>`,
+  trash: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>`,
+  chevL: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>`,
+  chevR: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>`,
+  empty: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19h16"/><path d="M4 19V9l8-6 8 6v10"/></svg>`,
+};
+
+/* ============================= RENDER: TABS ============================= */
+function renderTabs(){
+  const tabs = [
+    {id:'hoy', label:'Hoy'},
+    {id:'historial', label:'Historial'},
+    {id:'reportes', label:'Reportes'},
+    {id:'productos', label:'Productos'},
+    {id:'notas', label:'Notas'},
+  ];
+  if(state.currentUser && state.currentUser.rol === 'admin'){
+    tabs.push({id:'equipo', label:'Equipo'});
+  }
+  document.getElementById('tabs').innerHTML = tabs.map(t=>`
+    <button data-tab="${t.id}" class="${state.tab===t.id?'active':''}">${ICONS[t.id]}${t.label}</button>
+  `).join('');
+  document.querySelectorAll('nav.tabs button').forEach(b=>{
+    b.addEventListener('click', ()=>{ state.tab = b.dataset.tab; render(); });
+  });
+  document.getElementById('dateSubtitle').textContent =
+    state.tab==='hoy' ? 'CAJA DIARIA' :
+    state.tab==='historial' ? 'HISTORIAL DE DÍAS' :
+    state.tab==='reportes' ? 'REPORTE MENSUAL' :
+    state.tab==='productos' ? 'CATÁLOGO DE PRODUCTOS' :
+    state.tab==='equipo' ? 'CÓDIGOS DEL EQUIPO' : 'NOTAS DEL NEGOCIO';
+
+  const badge = document.getElementById('userBadge');
+  if(state.currentUser){
+    badge.innerHTML = `
+      <div class="user-chip">
+        <div>
+          <span class="uname">${escapeHtml(state.currentUser.nombre)}</span>
+          <span class="urole">${state.currentUser.rol === 'admin' ? 'Admin' : 'Equipo'}</span>
+        </div>
+        <button id="logoutBtn" title="Cambiar de usuario">${ICONS.logout}</button>
+      </div>`;
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{
+      state.currentUser = null; state.pinInput=''; state.loginError=''; state.tab='hoy';
+      render();
+    });
+  } else {
+    badge.innerHTML = '';
+  }
+}
+
+/* ============================= RENDER: ROOT ============================= */
+async function render(){
+  if(!state.currentUser){
+    document.getElementById('tabs').innerHTML = '';
+    document.getElementById('userBadge').innerHTML = '';
+    document.getElementById('dateSubtitle').textContent = 'INGRESO DEL EQUIPO';
+    updateCalcFabVisibility();
+    renderLogin(document.getElementById('app'));
+    return;
+  }
+  updateCalcFabVisibility();
+  renderTabs();
+  const app = document.getElementById('app');
+  if(state.tab === 'hoy') await renderHoy(app);
+  else if(state.tab === 'historial') await renderHistorial(app);
+  else if(state.tab === 'reportes') await renderReportes(app);
+  else if(state.tab === 'productos') await renderProductos(app);
+  else if(state.tab === 'notas') await renderNotas(app);
+  else if(state.tab === 'equipo') await renderEquipo(app);
+}
+
+/* ============================= LOGIN ============================= */
+function renderLogin(app){
+  app.innerHTML = `
+    <div class="login-wrap">
+      <div class="login-card">
+        <h2>Ingresa tu código</h2>
+        <p class="sub">Cada persona del equipo tiene su propio código</p>
+        <div class="pin-display" id="pinDisplay"></div>
+        <div class="keypad" id="keypad">
+          ${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('')}
+          <button data-k="clear" class="wide">Borrar</button>
+          <button data-k="0">0</button>
+          <button data-k="ok" class="wide">Entrar</button>
+        </div>
+        <div class="login-error" id="loginError">${state.loginError}</div>
+        <div class="login-hint">Si eres nuevo en el equipo, pídele tu código al administrador en la pestaña Equipo.</div>
+      </div>
+    </div>
+  `;
+  drawPin();
+  document.getElementById('keypad').addEventListener('click', e=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    const k = btn.dataset.k;
+    if(k === 'clear'){ state.pinInput = state.pinInput.slice(0,-1); state.loginError=''; }
+    else if(k === 'ok'){ tryLogin(); return; }
+    else if(state.pinInput.length < 6){ state.pinInput += k; state.loginError=''; }
+    drawPin();
+    document.getElementById('loginError').textContent = state.loginError;
+  });
+  function drawPin(){
+    const disp = document.getElementById('pinDisplay');
+    const dots = Math.max(4, state.pinInput.length);
+    disp.innerHTML = Array.from({length: Math.min(6,Math.max(4,dots))}).map((_,i)=>
+      `<div class="pin-dot ${i < state.pinInput.length ? 'filled':''}"></div>`
+    ).join('');
+  }
+  function tryLogin(){
+    const user = state.usuarios.find(u=>u.codigo === state.pinInput);
+    if(user){
+      state.currentUser = user;
+      state.pinInput = ''; state.loginError='';
+      render();
+    } else {
+      state.loginError = 'Código incorrecto. Intenta de nuevo.';
+      state.pinInput = '';
+      drawPin();
+      document.getElementById('loginError').textContent = state.loginError;
+    }
+  }
+}
+
+/* ============================= TAB: EQUIPO ============================= */
+async function renderEquipo(app){
+  app.innerHTML = `
+    <div class="card">
+      <h2 class="section-title"><span class="bar"></span>Códigos del equipo</h2>
+      <div class="muted" style="margin-bottom:12px;">Cada quien entra con su código y así queda registrado quién movió cada venta o gasto. Solo los administradores ven esta pestaña.</div>
+      <div id="teamList"></div>
+      <div class="otro-row">
+        <div class="field">
+          <label class="field-label">Nombre</label>
+          <input type="text" id="newTName" placeholder="Ej: Camilo">
+        </div>
+        <div class="field" style="max-width:110px;">
+          <label class="field-label">Código</label>
+          <input type="text" id="newTCode" placeholder="4 dígitos" maxlength="6">
+        </div>
+        <div class="field" style="max-width:140px;">
+          <label class="field-label">Rol</label>
+          <select id="newTRole">
+            <option value="trabajador">Trabajador</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+        <button class="btn btn-ember" id="addTeam">Agregar</button>
+      </div>
+    </div>
+  `;
+  const list = document.getElementById('teamList');
+  function draw(){
+    list.innerHTML = state.usuarios.length ? state.usuarios.map(u=>`
+      <div class="team-row" data-uid="${u.id}">
+        <input type="text" class="tname" value="${escapeHtml(u.nombre)}">
+        <input type="text" class="tcode" value="${escapeHtml(u.codigo)}">
+        <span class="role-badge ${u.rol}">${u.rol === 'admin' ? 'Admin' : 'Equipo'}</span>
+        <button class="icon-btn" data-del="${u.id}">${ICONS.trash}</button>
+      </div>
+    `).join('') : `<div class="muted">Sin usuarios todavía.</div>`;
+
+    list.querySelectorAll('.team-row').forEach(row=>{
+      const id = row.dataset.uid;
+      const user = state.usuarios.find(u=>u.id===id);
+      row.querySelector('.tname').addEventListener('change', async e=>{
+        user.nombre = e.target.value.trim() || user.nombre;
+        await saveUsuarios(); showToast('Nombre actualizado');
+        if(state.currentUser && state.currentUser.id===id) state.currentUser = user;
+      });
+      row.querySelector('.tcode').addEventListener('change', async e=>{
+        const val = e.target.value.trim();
+        if(!val){ e.target.value = user.codigo; return; }
+        if(state.usuarios.some(u=>u.id!==id && u.codigo===val)){ showToast('Ese código ya lo usa otra persona'); e.target.value = user.codigo; return; }
+        user.codigo = val;
+        await saveUsuarios(); showToast('Código actualizado');
+        if(state.currentUser && state.currentUser.id===id) state.currentUser = user;
+      });
+    });
+    list.querySelectorAll('[data-del]').forEach(b=>{
+      b.addEventListener('click', async ()=>{
+        if(state.usuarios.length <= 1){ showToast('Debe quedar al menos un usuario'); return; }
+        state.usuarios = state.usuarios.filter(u=>u.id!==b.dataset.del);
+        await saveUsuarios(); draw(); showToast('Usuario eliminado');
+      });
+    });
+  }
+  draw();
+
+  document.getElementById('addTeam').addEventListener('click', async ()=>{
+    const nombre = document.getElementById('newTName').value.trim();
+    const codigo = document.getElementById('newTCode').value.trim();
+    const rol = document.getElementById('newTRole').value;
+    if(!nombre || !codigo){ showToast('Escribe nombre y código'); return; }
+    if(state.usuarios.some(u=>u.codigo===codigo)){ showToast('Ese código ya está en uso'); return; }
+    state.usuarios.push({ id: uid(), nombre, codigo, rol });
+    await saveUsuarios();
+    document.getElementById('newTName').value=''; document.getElementById('newTCode').value='';
+    draw(); showToast('Persona agregada al equipo');
+  });
+}
+
+/* ============================= TAB: HOY ============================= */
+let pendingQty = {}; // productId -> qty
+
+async function renderHoy(app){
+  const dateKey = state.selectedDate;
+  const day = await loadDay(dateKey);
+  const totals = computeTotals(day);
+  const isToday = dateKey === todayStr();
+
+  app.innerHTML = `
+    <div class="card">
+      <div class="row" style="justify-content:space-between; align-items:center;">
+        <div class="date-nav">
+          <button class="arrow" id="prevDay">${ICONS.chevL}</button>
+          <div>
+            <div class="date-display">${dateLabel(dateKey)} ${isToday?'<span class="today-pill">HOY</span>':''}</div>
+          </div>
+          <button class="arrow" id="nextDay" ${isToday?'style="opacity:0.35;pointer-events:none;"':''}>${ICONS.chevR}</button>
+        </div>
+        <input type="date" id="dateInput" value="${dateKey}" style="max-width:150px;">
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title"><span class="bar"></span>Base del día</h2>
+      <div class="base-grid">
+        <div class="base-box">
+          <label class="field-label">Base efectivo</label>
+          <input type="text" inputmode="numeric" class="num-input" id="baseEfectivo" value="${fmtPlain(day.base.efectivo)}">
+        </div>
+        <div class="base-box">
+          <label class="field-label">Base transferencias</label>
+          <input type="text" inputmode="numeric" class="num-input" id="baseTransferencia" value="${fmtPlain(day.base.transferencia)}">
+        </div>
+      </div>
+      <div class="suggest-note">Sugerido automáticamente con el cierre del día anterior. Puedes editarlo.</div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between; align-items:center; margin-bottom:2px;">
+        <h2 class="section-title" style="margin:0;"><span class="bar"></span>Registrar venta</h2>
+        <button class="btn btn-ghost btn-sm" id="openPedido" style="display:flex; align-items:center; gap:6px;">📋 Nuevo pedido</button>
+      </div>
+      <div class="muted" style="margin:8px 0 12px;">Para pedidos rápidos de un solo producto, usa la lista de abajo. Para pedidos grandes con varios productos, usa "Nuevo pedido".</div>
+      <div class="prod-grid" id="prodGrid"></div>
+      <div class="otro-row">
+        <div class="field">
+          <label class="field-label">Otro producto</label>
+          <input type="text" id="otroNombre" placeholder="Nombre del pedido">
+        </div>
+        <div class="field" style="max-width:130px;">
+          <label class="field-label">Valor</label>
+          <input type="text" inputmode="numeric" class="num-input" id="otroMonto" placeholder="0">
+        </div>
+        <button class="btn btn-ember pay-efectivo" style="background:rgba(124,154,92,0.16); color:var(--green); font-weight:700;" id="otroEfectivo">+ Efectivo</button>
+        <button class="btn btn-ember" style="background:rgba(219,163,63,0.16); color:var(--gold); font-weight:700;" id="otroTransfer">+ Transferencia</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title"><span class="bar"></span>Registrar gasto</h2>
+      <div class="muted" style="margin-bottom:10px;">Se descuenta del total en efectivo del día.</div>
+      <div class="gasto-row">
+        <div class="field">
+          <label class="field-label">Descripción</label>
+          <input type="text" id="gastoDesc" placeholder="Ej: Salsa mayonesa">
+        </div>
+        <div class="field" style="max-width:130px;">
+          <label class="field-label">Valor</label>
+          <input type="text" inputmode="numeric" class="num-input" id="gastoMonto" placeholder="0">
+        </div>
+        <button class="btn btn-danger" id="addGasto">Agregar gasto</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title"><span class="bar"></span>Registro del día</h2>
+      <div class="ledger">
+        <div class="ledger-col">
+          <div class="ledger-head"><h3>Transferencias</h3><span class="num sum" style="color:var(--gold)">${fmt(totals.ventasTransferencia)}</span></div>
+          <div id="colTransferencias"></div>
+        </div>
+        <div class="ledger-col">
+          <div class="ledger-head"><h3>Efectivo</h3><span class="num sum" style="color:var(--green)">${fmt(totals.ventasEfectivo)}</span></div>
+          <div id="colEfectivo"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card totals-card">
+      <h2 class="section-title"><span class="bar"></span>Total del día</h2>
+      <div class="totals-grid">
+        <div class="total-item"><div class="t-label">Ventas efectivo</div><div class="t-value num">${fmt(totals.ventasEfectivo)}</div></div>
+        <div class="total-item neg"><div class="t-label">Gastos</div><div class="t-value num">${fmt(-totals.gastosTotal)}</div></div>
+        <div class="total-item"><div class="t-label">Total efectivo</div><div class="t-value num">${fmt(totals.totalEfectivo)}</div></div>
+        <div class="total-item"><div class="t-label">Total transferencias</div><div class="t-value num">${fmt(totals.ventasTransferencia)}</div></div>
+        <div class="total-item hero"><div class="t-label">Total general</div><div class="t-value num">${fmt(totals.totalGeneral)}</div></div>
+        <div class="total-item"><div class="t-label">Caja esperada (efvo.)</div><div class="t-value num" style="font-size:16px; color:var(--ash-dim);">${fmt(totals.cajaEsperada)}</div></div>
+      </div>
+    </div>
+
+    <div class="card" id="cuadreCard"></div>
+  `;
+
+  renderProdGrid();
+  renderLedger(day);
+  renderCuadre(day, totals);
+
+  // events
+  document.getElementById('dateInput').addEventListener('change', e=>{ state.selectedDate = e.target.value; render(); });
+  document.getElementById('prevDay').addEventListener('click', ()=>{ state.selectedDate = addDays(state.selectedDate,-1); render(); });
+  document.getElementById('nextDay').addEventListener('click', ()=>{ state.selectedDate = addDays(state.selectedDate,1); render(); });
+  document.getElementById('openPedido').addEventListener('click', openPedidoModal);
+
+  formatThousands(document.getElementById('baseEfectivo'));
+  formatThousands(document.getElementById('baseTransferencia'));
+  formatThousands(document.getElementById('otroMonto'));
+  formatThousands(document.getElementById('gastoMonto'));
+
+  document.getElementById('baseEfectivo').addEventListener('change', async e=>{
+    day.base.efectivo = rawNumber(e.target);
+    await saveDay(dateKey); render();
+  });
+  document.getElementById('baseTransferencia').addEventListener('change', async e=>{
+    day.base.transferencia = rawNumber(e.target);
+    await saveDay(dateKey); render();
+  });
+
+  document.getElementById('otroEfectivo').addEventListener('click', ()=> addOtro('efectivo'));
+  document.getElementById('otroTransfer').addEventListener('click', ()=> addOtro('transferencia'));
+  async function addOtro(medio){
+    const nombre = document.getElementById('otroNombre').value.trim();
+    const monto = rawNumber(document.getElementById('otroMonto'));
+    if(!nombre || monto<=0){ showToast('Escribe un nombre y un valor válido'); return; }
+    day.ventas.push({ id: uid(), producto: nombre, precio: monto, cantidad:1, monto, medio, hora: nowTime(), by: state.currentUser.nombre });
+    await saveDay(dateKey);
+    showToast('Venta agregada');
+    render();
+  }
+
+  document.getElementById('addGasto').addEventListener('click', async ()=>{
+    const desc = document.getElementById('gastoDesc').value.trim();
+    const monto = rawNumber(document.getElementById('gastoMonto'));
+    if(!desc || monto<=0){ showToast('Escribe una descripción y un valor válido'); return; }
+    day.gastos.push({ id: uid(), desc, monto, hora: nowTime(), by: state.currentUser.nombre });
+    await saveDay(dateKey);
+    showToast('Gasto agregado');
+    render();
+  });
+
+  function renderProdGrid(){
+    const grid = document.getElementById('prodGrid');
+    if(state.products.length===0){
+      grid.innerHTML = `<div class="muted">Aún no tienes productos. Ve a la pestaña "Productos" para agregarlos.</div>`;
+      return;
+    }
+    grid.innerHTML = state.products.map(p=>{
+      const qty = pendingQty[p.id] || 1;
+      return `
+      <div class="prod-card" data-pid="${p.id}">
+        <div class="pname">${escapeHtml(p.nombre)}</div>
+        <div class="pprice num">${fmt(p.precio)}</div>
+        <div class="qty-row">
+          <button class="qminus">−</button>
+          <span class="qval">${qty}</span>
+          <button class="qplus">+</button>
+        </div>
+        <div class="pay-row">
+          <button class="pay-efectivo">Efectivo</button>
+          <button class="pay-transfer">Transf.</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    grid.querySelectorAll('.prod-card').forEach(card=>{
+      const pid = card.dataset.pid;
+      const product = state.products.find(p=>p.id===pid);
+      card.querySelector('.qminus').addEventListener('click', ()=>{
+        pendingQty[pid] = Math.max(1,(pendingQty[pid]||1)-1);
+        card.querySelector('.qval').textContent = pendingQty[pid];
+      });
+      card.querySelector('.qplus').addEventListener('click', ()=>{
+        pendingQty[pid] = (pendingQty[pid]||1)+1;
+        card.querySelector('.qval').textContent = pendingQty[pid];
+      });
+      card.querySelector('.pay-efectivo').addEventListener('click', ()=> addVenta(product,'efectivo'));
+      card.querySelector('.pay-transfer').addEventListener('click', ()=> addVenta(product,'transferencia'));
+    });
+
+    async function addVenta(product, medio){
+      const qty = pendingQty[product.id] || 1;
+      const monto = product.precio * qty;
+      day.ventas.push({ id: uid(), producto: product.nombre, precio: product.precio, cantidad: qty, monto, medio, hora: nowTime(), by: state.currentUser.nombre });
+      pendingQty[product.id] = 1;
+      await saveDay(dateKey);
+      showToast(`${product.nombre} agregado`);
+      render();
+    }
+  }
+
+  function renderLedger(day){
+    const transfers = day.ventas.filter(v=>v.medio==='transferencia').sort((a,b)=>a.hora.localeCompare(b.hora));
+    const efectivoItems = [
+      ...day.ventas.filter(v=>v.medio==='efectivo').map(v=>({...v,type:'venta'})),
+      ...day.gastos.map(g=>({...g,type:'gasto'})),
+    ].sort((a,b)=>a.hora.localeCompare(b.hora));
+
+    const colT = document.getElementById('colTransferencias');
+    const colE = document.getElementById('colEfectivo');
+
+    colT.innerHTML = transfers.length ? transfers.map(v=>`
+      <div class="line-item">
+        <div class="li-left">
+          <div class="li-name">${escapeHtml(v.producto)}${v.cantidad>1?` ×${v.cantidad}`:''}</div>
+          <div class="li-meta">${v.hora}${v.by?' · '+escapeHtml(v.by):''}</div>
+        </div>
+        <div class="li-right">
+          <span class="li-amount amount-pos num">${fmt(v.monto)}</span>
+          <button class="icon-btn" data-del-venta="${v.id}">${ICONS.trash}</button>
+        </div>
+      </div>
+    `).join('') : `<div class="ledger-empty">Sin transferencias aún</div>`;
+
+    colE.innerHTML = efectivoItems.length ? efectivoItems.map(item=>{
+      if(item.type==='venta'){
+        return `
+        <div class="line-item">
+          <div class="li-left">
+            <div class="li-name">${escapeHtml(item.producto)}${item.cantidad>1?` ×${item.cantidad}`:''}</div>
+            <div class="li-meta">${item.hora}${item.by?' · '+escapeHtml(item.by):''}</div>
+          </div>
+          <div class="li-right">
+            <span class="li-amount amount-pos num">${fmt(item.monto)}</span>
+            <button class="icon-btn" data-del-venta="${item.id}">${ICONS.trash}</button>
+          </div>
+        </div>`;
+      } else {
+        return `
+        <div class="line-item">
+          <div class="li-left">
+            <div class="li-name">${escapeHtml(item.desc)}</div>
+            <div class="li-meta">${item.hora} · gasto${item.by?' · '+escapeHtml(item.by):''}</div>
+          </div>
+          <div class="li-right">
+            <span class="li-amount amount-neg num">-${fmtPlain(item.monto)}</span>
+            <button class="icon-btn" data-del-gasto="${item.id}">${ICONS.trash}</button>
+          </div>
+        </div>`;
+      }
+    }).join('') : `<div class="ledger-empty">Sin registros en efectivo aún</div>`;
+
+    colT.querySelectorAll('[data-del-venta]').forEach(b=> b.addEventListener('click', async ()=>{
+      day.ventas = day.ventas.filter(v=>v.id!==b.dataset.delVenta);
+      await saveDay(dateKey); render();
+    }));
+    colE.querySelectorAll('[data-del-venta]').forEach(b=> b.addEventListener('click', async ()=>{
+      day.ventas = day.ventas.filter(v=>v.id!==b.dataset.delVenta);
+      await saveDay(dateKey); render();
+    }));
+    colE.querySelectorAll('[data-del-gasto]').forEach(b=> b.addEventListener('click', async ()=>{
+      day.gastos = day.gastos.filter(g=>g.id!==b.dataset.delGasto);
+      await saveDay(dateKey); render();
+    }));
+  }
+
+  function renderCuadre(day, totals){
+    const card = document.getElementById('cuadreCard');
+    const contado = day.cierre.contado;
+    card.innerHTML = `
+      <h2 class="section-title"><span class="bar"></span>Cuadre de caja</h2>
+      <div class="muted" style="margin-bottom:12px;">Cuenta el efectivo físico de la caja y compáralo con lo que el sistema espera.</div>
+      <div class="cuadre-grid">
+        <div>
+          <label class="field-label">Efectivo contado</label>
+          <input type="text" inputmode="numeric" class="num-input" id="contadoInput" placeholder="0" value="${contado!==null && contado!==undefined ? fmtPlain(contado) : ''}">
+        </div>
+        <div class="muted" style="padding-bottom:9px;">Caja esperada: <span class="num" style="color:var(--ash);">${fmt(totals.cajaEsperada)}</span></div>
+      </div>
+      <div id="cuadreResultWrap"></div>
+    `;
+    const input = document.getElementById('contadoInput');
+    formatThousands(input);
+    drawResult();
+
+    function drawResult(){
+      const wrap = document.getElementById('cuadreResultWrap');
+      const c = day.cierre.contado;
+      if(c === null || c === undefined){
+        wrap.innerHTML = `<div class="cuadre-empty">Aún no se ha contado la caja de este día.</div>`;
+        return;
+      }
+      const diff = c - totals.cajaEsperada;
+      let cls = 'ok', label = 'Caja cuadrada', value = fmt(0);
+      if(diff > 0){ cls='sobra'; label='Sobrante en caja'; value = '+'+fmt(diff); }
+      else if(diff < 0){ cls='falta'; label='Faltante en caja'; value = fmt(diff); }
+      wrap.innerHTML = `
+        <div class="cuadre-result ${cls}">
+          <div><div class="cr-label">${label}</div><div class="cr-value">${value}</div></div>
+          <div class="cr-label">Contado: <span class="num">${fmt(c)}</span></div>
+        </div>
+        <div class="cuadre-meta">${day.cierre.by ? 'Contado por '+escapeHtml(day.cierre.by)+(day.cierre.hora? ' a las '+day.cierre.hora : '') : ''}</div>
+      `;
+    }
+
+    input.addEventListener('change', async e=>{
+      const val = rawNumber(e.target);
+      day.cierre.contado = e.target.value.trim()==='' ? null : val;
+      day.cierre.by = day.cierre.contado===null ? null : state.currentUser.nombre;
+      day.cierre.hora = day.cierre.contado===null ? null : nowTime();
+      await saveDay(dateKey);
+      drawResult();
+    });
+  }
+}
+
+function nowTime(){ return new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ============================= TAB: HISTORIAL ============================= */
+async function renderHistorial(app){
+  await loadHistoryDates();
+  if(state.historyDates.length===0){
+    app.innerHTML = `<div class="card empty-state">${ICONS.empty}<div>Todavía no hay días registrados.</div><div class="muted">Empieza en la pestaña "Hoy".</div></div>`;
+    return;
+  }
+  app.innerHTML = `<div class="card"><h2 class="section-title"><span class="bar"></span>Días registrados</h2><div id="histList"></div></div>`;
+  const list = document.getElementById('histList');
+  const rows = [];
+  for(const dateKey of state.historyDates){
+    const day = await loadDay(dateKey);
+    const t = computeTotals(day);
+    const c = day.cierre ? day.cierre.contado : null;
+    let cuadreTag = '';
+    if(c !== null && c !== undefined){
+      const diff = c - t.cajaEsperada;
+      if(diff === 0) cuadreTag = `<span class="role-badge trabajador" style="margin-left:8px;">Cuadrada</span>`;
+      else if(diff > 0) cuadreTag = `<span class="role-badge admin" style="margin-left:8px;">+${fmtPlain(diff)}</span>`;
+      else cuadreTag = `<span class="role-badge" style="margin-left:8px; background:var(--danger-bg); color:var(--danger);">${fmtPlain(diff)}</span>`;
+    }
+    rows.push(`
+      <div class="hist-row" data-date="${dateKey}">
+        <div class="hist-date">${shortDateLabel(dateKey)}<span class="dow">${parseDate(dateKey).toLocaleDateString('es-CO',{weekday:'short'})}</span>${cuadreTag}</div>
+        <div class="hist-figs">
+          <div class="hist-fig"><div class="l">Efectivo</div><div class="v">${fmtPlain(t.totalEfectivo)}</div></div>
+          <div class="hist-fig"><div class="l">Transfer.</div><div class="v" style="color:var(--gold)">${fmtPlain(t.ventasTransferencia)}</div></div>
+          <div class="hist-fig"><div class="l">Total</div><div class="v" style="color:var(--ash); font-weight:700;">${fmtPlain(t.totalGeneral)}</div></div>
+        </div>
+      </div>`);
+  }
+  list.innerHTML = rows.join('');
+  list.querySelectorAll('.hist-row').forEach(r=>{
+    r.addEventListener('click', ()=>{
+      state.selectedDate = r.dataset.date;
+      state.tab = 'hoy';
+      render();
+    });
+  });
+}
+
+/* ============================= TAB: REPORTES ============================= */
+async function renderReportes(app){
+  await loadHistoryDates();
+  const monthDates = state.historyDates.filter(d=> d.startsWith(state.reportMonth)).sort();
+
+  app.innerHTML = `
+    <div class="card">
+      <div class="month-picker">
+        <label class="field-label" style="margin:0;">Mes</label>
+        <input type="month" id="monthInput" value="${state.reportMonth}">
+      </div>
+      <div id="reportBody"></div>
+    </div>
+  `;
+  document.getElementById('monthInput').addEventListener('change', e=>{
+    state.reportMonth = e.target.value; render();
+  });
+
+  const body = document.getElementById('reportBody');
+  if(monthDates.length===0){
+    body.innerHTML = `<div class="empty-state">${ICONS.empty}<div>No hay ventas registradas este mes.</div></div>`;
+    return;
+  }
+
+  let sumEfectivo=0, sumTransfer=0, sumGastos=0, sumGeneral=0;
+  const dayPoints = [];
+  const productTotals = {};
+
+  for(const dateKey of monthDates){
+    const day = await loadDay(dateKey);
+    const t = computeTotals(day);
+    sumEfectivo += t.ventasEfectivo;
+    sumTransfer += t.ventasTransferencia;
+    sumGastos += t.gastosTotal;
+    sumGeneral += t.totalGeneral;
+    dayPoints.push({ date: dateKey, efectivo: t.ventasEfectivo, transferencia: t.ventasTransferencia, total: t.ventasEfectivo+t.ventasTransferencia });
+    for(const v of day.ventas){
+      if(!productTotals[v.producto]) productTotals[v.producto] = { cantidad:0, total:0 };
+      productTotals[v.producto].cantidad += v.cantidad;
+      productTotals[v.producto].total += v.monto;
+    }
+  }
+
+  const topProducts = Object.entries(productTotals)
+    .map(([nombre,d])=>({nombre, ...d}))
+    .sort((a,b)=>b.total-a.total)
+    .slice(0,8);
+
+  body.innerHTML = `
+    <div class="totals-grid" style="margin-bottom:20px;">
+      <div class="total-item"><div class="t-label">Ventas efectivo</div><div class="t-value num">${fmt(sumEfectivo)}</div></div>
+      <div class="total-item"><div class="t-label">Ventas transferencias</div><div class="t-value num">${fmt(sumTransfer)}</div></div>
+      <div class="total-item neg"><div class="t-label">Gastos del mes</div><div class="t-value num">${fmt(-sumGastos)}</div></div>
+      <div class="total-item hero"><div class="t-label">Total neto del mes</div><div class="t-value num">${fmt(sumGeneral)}</div></div>
+    </div>
+    <h2 class="section-title"><span class="bar"></span>Ventas por día</h2>
+    <div class="chart-wrap" id="chartWrap"></div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:linear-gradient(135deg,var(--gold),var(--ember));"></span>Ventas totales por día</div>
+    </div>
+    <h2 class="section-title" style="margin-top:26px;"><span class="bar"></span>Productos más vendidos</h2>
+    <div id="topProducts"></div>
+  `;
+
+  document.getElementById('chartWrap').innerHTML = buildBarChart(dayPoints);
+
+  const tp = document.getElementById('topProducts');
+  tp.innerHTML = topProducts.length ? topProducts.map((p,i)=>`
+    <div class="top-prod-row">
+      <div class="top-rank">${i+1}</div>
+      <div class="top-name">${escapeHtml(p.nombre)}<div class="top-qty">${p.cantidad} vendidos</div></div>
+      <div class="top-total num">${fmt(p.total)}</div>
+    </div>
+  `).join('') : `<div class="muted">Sin datos de productos este mes.</div>`;
+}
+
+function buildBarChart(points){
+  const W = Math.max(560, points.length*44);
+  const H = 220;
+  const padBottom = 34, padTop = 12, padLeft = 6;
+  const max = Math.max(1, ...points.map(p=>p.total));
+  const barW = Math.min(28, (W-padLeft*2)/points.length - 8);
+  const gap = (W - padLeft*2 - barW*points.length) / Math.max(1,points.length-1);
+
+  let bars = '';
+  points.forEach((p,i)=>{
+    const x = padLeft + i*(barW+gap);
+    const h = Math.max(2, (p.total/max) * (H-padTop-padBottom));
+    const y = H - padBottom - h;
+    const d = parseDate(p.date);
+    bars += `
+      <g>
+        <rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="5" fill="url(#barGrad)">
+          <title>${dateLabel(p.date)}\n${fmt(p.total)}</title>
+        </rect>
+        <text x="${x+barW/2}" y="${H-padBottom+16}" text-anchor="middle" font-size="10" fill="#8a7a68" font-family="JetBrains Mono, monospace">${d.getDate()}</text>
+      </g>`;
+  });
+
+  return `
+  <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="min-width:${W}px;">
+    <defs>
+      <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#dba33f"/>
+        <stop offset="100%" stop-color="#c1390f"/>
+      </linearGradient>
+    </defs>
+    <line x1="${padLeft}" y1="${H-padBottom}" x2="${W-padLeft}" y2="${H-padBottom}" stroke="#4a3c30" stroke-width="1"/>
+    ${bars}
+  </svg>`;
+}
+
+/* ============================= TAB: PRODUCTOS ============================= */
+async function renderProductos(app){
+  app.innerHTML = `
+    <div class="card">
+      <h2 class="section-title"><span class="bar"></span>Catálogo de productos</h2>
+      <div id="prodList"></div>
+      <div class="otro-row">
+        <div class="field">
+          <label class="field-label">Nombre del producto</label>
+          <input type="text" id="newPName" placeholder="Ej: Perro caliente">
+        </div>
+        <div class="field" style="max-width:150px;">
+          <label class="field-label">Precio</label>
+          <input type="text" inputmode="numeric" class="num-input" id="newPPrice" placeholder="0">
+        </div>
+        <button class="btn btn-ember" id="addProduct">Agregar producto</button>
+      </div>
+    </div>
+  `;
+  const list = document.getElementById('prodList');
+  function draw(){
+    list.innerHTML = state.products.length ? state.products.map(p=>`
+      <div class="prod-list-row" data-pid="${p.id}">
+        <input type="text" class="pname-input" value="${escapeHtml(p.nombre)}">
+        <input type="text" inputmode="numeric" class="num-input pprice-input" value="${fmtPlain(p.precio)}">
+        <button class="icon-btn" data-del="${p.id}">${ICONS.trash}</button>
+      </div>
+    `).join('') : `<div class="muted">Sin productos todavía.</div>`;
+
+    list.querySelectorAll('.pprice-input').forEach(el=> formatThousands(el));
+
+    list.querySelectorAll('.prod-list-row').forEach(row=>{
+      const pid = row.dataset.pid;
+      const product = state.products.find(p=>p.id===pid);
+      row.querySelector('.pname-input').addEventListener('change', async e=>{
+        product.nombre = e.target.value.trim() || product.nombre;
+        await saveProducts(); showToast('Producto actualizado');
+      });
+      row.querySelector('.pprice-input').addEventListener('change', async e=>{
+        product.precio = rawNumber(e.target);
+        await saveProducts(); showToast('Precio actualizado');
+      });
+    });
+    list.querySelectorAll('[data-del]').forEach(b=>{
+      b.addEventListener('click', async ()=>{
+        state.products = state.products.filter(p=>p.id!==b.dataset.del);
+        await saveProducts(); draw(); showToast('Producto eliminado');
+      });
+    });
+  }
+  draw();
+  formatThousands(document.getElementById('newPPrice'));
+
+  document.getElementById('addProduct').addEventListener('click', async ()=>{
+    const nombre = document.getElementById('newPName').value.trim();
+    const precio = rawNumber(document.getElementById('newPPrice'));
+    if(!nombre){ showToast('Escribe un nombre de producto'); return; }
+    state.products.push({ id: uid(), nombre, precio });
+    await saveProducts();
+    document.getElementById('newPName').value=''; document.getElementById('newPPrice').value='';
+    draw(); showToast('Producto agregado');
+  });
+}
+
+/* ============================= TAB: NOTAS ============================= */
+async function renderNotas(app){
+  const saved = await storageGet('notas');
+  const text = saved && saved.text ? saved.text : '';
+  app.innerHTML = `
+    <div class="card">
+      <div class="row" style="justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h2 class="section-title" style="margin:0;"><span class="bar"></span>Notas del negocio</h2>
+        <span class="muted" id="notasStatus">Guardado</span>
+      </div>
+      <div class="muted" style="margin-bottom:12px;">Anota lo que necesites recordar: préstamos, deudas, cosas por comprar, pendientes, etc. Se guarda solo mientras escribes.</div>
+      <textarea id="notasArea" placeholder="Ej: Se le prestó $20.000 a Juan el viernes&#10;Hay que comprar carbón&#10;Camilo debe $15.000 de la semana pasada"
+        style="width:100%; min-height:360px; resize:vertical; background:var(--bg-2); border:1px solid var(--smoke); color:var(--ash); border-radius:var(--radius-sm); padding:14px; font-family:'Work Sans',sans-serif; font-size:14.5px; line-height:1.6; outline:none;">${escapeHtml(text)}</textarea>
+    </div>
+  `;
+  const area = document.getElementById('notasArea');
+  const status = document.getElementById('notasStatus');
+  const doSave = debounce(async ()=>{
+    status.textContent = 'Guardando...';
+    await storageSet('notas', { text: area.value, updated: new Date().toISOString() });
+    status.textContent = 'Guardado';
+  }, 500);
+  area.addEventListener('input', ()=>{
+    status.textContent = 'Escribiendo...';
+    doSave();
+  });
+}
+
+/* ============================= CALCULADORA ============================= */
+const calc = { display:'0', stored:null, operator:null, waiting:false, mode:'basic' };
+
+function setupCalculator(){
+  const fab = document.getElementById('calcFab');
+  const backdrop = document.getElementById('calcBackdrop');
+  fab.addEventListener('click', ()=>{ backdrop.classList.remove('hidden'); drawCalcBody(); });
+  document.getElementById('calcClose').addEventListener('click', ()=> backdrop.classList.add('hidden'));
+  backdrop.addEventListener('click', e=>{ if(e.target === backdrop) backdrop.classList.add('hidden'); });
+  document.querySelectorAll('.calc-modetabs button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('.calc-modetabs button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      calc.mode = b.dataset.mode;
+      drawCalcBody();
+    });
+  });
+}
+
+function updateCalcFabVisibility(){
+  const fab = document.getElementById('calcFab');
+  if(state.currentUser) fab.classList.remove('hidden');
+  else { fab.classList.add('hidden'); document.getElementById('calcBackdrop').classList.add('hidden'); }
+}
+
+/* Formats a raw numeric string (possibly with a decimal point) with thousands separators for display */
+function formatCalcNumber(str){
+  if(str === '' || str === undefined || str === null) return '0';
+  let neg = str.startsWith('-') ? '-' : '';
+  if(neg) str = str.slice(1);
+  let [intPart, decPart] = str.split('.');
+  intPart = intPart.replace(/^0+(?=\d)/,'');
+  if(intPart === '') intPart = '0';
+  const formattedInt = Number(intPart).toLocaleString('es-CO');
+  return neg + formattedInt + (decPart !== undefined ? '.'+decPart : '');
+}
+
+function drawCalcBody(){
+  const body = document.getElementById('calcBody');
+  if(calc.mode === 'basic'){
+    body.innerHTML = `
+      <div class="calc-display">
+        <div class="expr" id="calcExpr">${calc.stored!==null ? formatCalcNumber(trimNum(calc.stored)) + ' ' + (calc.operator||'') : ''}</div>
+        <div class="val" id="calcVal">${formatCalcNumber(calc.display)}</div>
+      </div>
+      <div class="calc-grid">
+        <button class="fn" data-k="clear">C</button>
+        <button class="fn" data-k="back">⌫</button>
+        <button class="op" data-k="%">%</button>
+        <button class="op" data-k="/">÷</button>
+        <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+        <button class="op" data-k="*">×</button>
+        <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+        <button class="op" data-k="-">−</button>
+        <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+        <button class="op" data-k="+" style="grid-row: span 2;">+</button>
+        <button data-k="0" class="zero">0</button><button data-k=".">.</button>
+        <button class="eq" data-k="=">=</button>
+      </div>
+    `;
+    body.querySelectorAll('.calc-grid button').forEach(b=>{
+      b.addEventListener('click', ()=> calcHandle(b.dataset.k));
+    });
+  } else {
+    body.innerHTML = `
+      <div class="vuelto-field">
+        <label class="field-label">Cuánto tiene que pagar el cliente</label>
+        <input type="text" inputmode="numeric" class="num-input" id="vueltoTotal" placeholder="0" value="${calc.vTotal?fmtPlain(calc.vTotal):''}">
+      </div>
+      <div class="vuelto-field" style="margin-bottom:6px;">
+        <label class="field-label">Con cuánto paga</label>
+        <input type="text" inputmode="numeric" class="num-input" id="vueltoRecibe" placeholder="0" value="${calc.vRecibe?fmtPlain(calc.vRecibe):''}">
+      </div>
+      <div id="vueltoResultWrap"></div>
+    `;
+    const tEl = document.getElementById('vueltoTotal');
+    const rEl = document.getElementById('vueltoRecibe');
+    formatThousands(tEl); formatThousands(rEl);
+    tEl.focus();
+    function update(){
+      calc.vTotal = rawNumber(tEl);
+      calc.vRecibe = rawNumber(rEl);
+      const wrap = document.getElementById('vueltoResultWrap');
+      const diff = calc.vRecibe - calc.vTotal;
+      if(!calc.vTotal && !calc.vRecibe){ wrap.innerHTML=''; return; }
+      if(diff >= 0){
+        wrap.innerHTML = `<div class="vuelto-result ok"><div class="vr-label">Le tengo que devolver</div><div class="vr-value num">${fmt(diff)}</div></div>`;
+      } else {
+        wrap.innerHTML = `<div class="vuelto-result bad"><div class="vr-label">Le falta por pagar</div><div class="vr-value num">${fmt(-diff)}</div></div>`;
+      }
+    }
+    tEl.addEventListener('input', update);
+    rEl.addEventListener('input', update);
+    update();
+  }
+}
+
+function calcHandle(k){
+  if(k === 'clear'){ calc.display='0'; calc.stored=null; calc.operator=null; calc.waiting=false; }
+  else if(k === 'back'){ calc.display = calc.display.length>1 ? calc.display.slice(0,-1) : '0'; }
+  else if(k === '.'){ if(calc.waiting){ calc.display='0.'; calc.waiting=false; } else if(!calc.display.includes('.')) calc.display += '.'; }
+  else if(k === '%'){ calc.display = String(parseFloat(calc.display)/100); }
+  else if(['+','-','*','/'].includes(k)){
+    if(calc.stored!==null && !calc.waiting){ calc.stored = calcCompute(); calc.display = trimNum(calc.stored); }
+    else calc.stored = parseFloat(calc.display);
+    calc.operator = k; calc.waiting = true;
+  }
+  else if(k === '='){
+    if(calc.operator!==null){ calc.stored = calcCompute(); calc.display = trimNum(calc.stored); calc.operator=null; calc.waiting=true; }
+  }
+  else { // digit
+    if(calc.waiting){ calc.display = k; calc.waiting=false; }
+    else calc.display = calc.display==='0' ? k : calc.display + k;
+  }
+  drawCalcBody();
+}
+function calcCompute(){
+  const a = calc.stored, b = parseFloat(calc.display);
+  if(a===null || isNaN(b)) return a||0;
+  switch(calc.operator){
+    case '+': return a+b;
+    case '-': return a-b;
+    case '*': return a*b;
+    case '/': return b===0 ? 0 : a/b;
+    default: return b;
+  }
+}
+function trimNum(n){ return String(Math.round(n*100)/100); }
+
+/* ============================= PEDIDOS ============================= */
+const pedido = { cart: {}, medio: null }; // cart: productId -> qty
+
+function setupPedido(){
+  const backdrop = document.getElementById('pedidoBackdrop');
+  document.getElementById('pedidoClose').addEventListener('click', ()=> backdrop.classList.add('hidden'));
+  backdrop.addEventListener('click', e=>{ if(e.target === backdrop) backdrop.classList.add('hidden'); });
+}
+
+function openPedidoModal(){
+  pedido.cart = {}; pedido.medio = null;
+  document.getElementById('pedidoBackdrop').classList.remove('hidden');
+  drawPedidoBody();
+}
+
+function pedidoTotal(){
+  let total = 0;
+  for(const pid in pedido.cart){
+    const p = state.products.find(x=>x.id===pid);
+    if(p) total += p.precio * pedido.cart[pid];
+  }
+  return total;
+}
+
+function drawPedidoBody(){
+  const body = document.getElementById('pedidoBody');
+  const cartEntries = Object.entries(pedido.cart).filter(([,q])=>q>0);
+  const total = pedidoTotal();
+
+  body.innerHTML = `
+    <div class="pedido-prod-grid" id="pedidoProdGrid"></div>
+    <div class="pedido-cart">
+      ${cartEntries.length ? cartEntries.map(([pid,q])=>{
+        const p = state.products.find(x=>x.id===pid);
+        if(!p) return '';
+        return `
+        <div class="pedido-cart-row">
+          <div><div class="pcname">${escapeHtml(p.nombre)}</div><div class="pcqty">×${q}</div></div>
+          <div class="pcsub num">${fmt(p.precio*q)}</div>
+        </div>`;
+      }).join('') : `<div class="pedido-cart-empty">Agrega productos al pedido tocando + en la lista de arriba</div>`}
+    </div>
+    <div class="pedido-total">
+      <div class="pt-label">Total del pedido</div>
+      <div class="pt-value num">${fmt(total)}</div>
+    </div>
+    <div class="pedido-pay">
+      <button data-medio="efectivo" class="${pedido.medio==='efectivo'?'sel-efectivo':''}">Efectivo</button>
+      <button data-medio="transferencia" class="${pedido.medio==='transferencia'?'sel-transferencia':''}">Transferencia</button>
+    </div>
+    <button class="btn btn-ember pedido-dispatch" id="dispatchPedido" ${(cartEntries.length===0 || !pedido.medio) ? 'disabled':''}>Despachar pedido</button>
+  `;
+
+  const grid = document.getElementById('pedidoProdGrid');
+  grid.innerHTML = state.products.map(p=>{
+    const q = pedido.cart[p.id] || 0;
+    return `
+    <div class="pedido-prod" data-pid="${p.id}">
+      <div class="ppname">${escapeHtml(p.nombre)}</div>
+      <div class="ppprice num">${fmt(p.precio)}</div>
+      <div class="qty-row">
+        <button class="pminus">−</button>
+        <span class="pqval">${q}</span>
+        <button class="pplus">+</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.pedido-prod').forEach(card=>{
+    const pid = card.dataset.pid;
+    card.querySelector('.pminus').addEventListener('click', ()=>{
+      pedido.cart[pid] = Math.max(0,(pedido.cart[pid]||0)-1);
+      drawPedidoBody();
+    });
+    card.querySelector('.pplus').addEventListener('click', ()=>{
+      pedido.cart[pid] = (pedido.cart[pid]||0)+1;
+      drawPedidoBody();
+    });
+  });
+
+  body.querySelectorAll('.pedido-pay button').forEach(b=>{
+    b.addEventListener('click', ()=>{ pedido.medio = b.dataset.medio; drawPedidoBody(); });
+  });
+
+  const dispatchBtn = document.getElementById('dispatchPedido');
+  if(dispatchBtn && !dispatchBtn.disabled){
+    dispatchBtn.addEventListener('click', dispatchPedido);
+  }
+}
+
+async function dispatchPedido(){
+  const day = await loadDay(state.selectedDate);
+  const hora = nowTime();
+  for(const pid in pedido.cart){
+    const qty = pedido.cart[pid];
+    if(qty <= 0) continue;
+    const p = state.products.find(x=>x.id===pid);
+    if(!p) continue;
+    day.ventas.push({
+      id: uid(), producto: p.nombre, precio: p.precio, cantidad: qty,
+      monto: p.precio*qty, medio: pedido.medio, hora, by: state.currentUser.nombre
+    });
+  }
+  await saveDay(state.selectedDate);
+  document.getElementById('pedidoBackdrop').classList.add('hidden');
+  showToast('Pedido despachado');
+  if(state.tab === 'hoy') render();
+}
+
+
+/* ============================= INIT ============================= */
+(async function init(){
+  if(!supabaseConfigured){
+    document.getElementById('tabs').innerHTML = '';
+    document.getElementById('app').innerHTML = `
+      <div class="login-wrap">
+        <div class="login-card" style="max-width:420px; text-align:left;">
+          <h2 style="text-align:center;">⚠️ Falta configurar</h2>
+          <p class="sub" style="text-align:center;">Todavía no conectaste la base de datos</p>
+          <div class="muted" style="line-height:1.7;">
+            Abre el archivo HTML en un editor de texto, busca las líneas que dicen
+            <code style="color:var(--gold);">SUPABASE_URL</code> y
+            <code style="color:var(--gold);">SUPABASE_ANON_KEY</code> cerca del inicio del script,
+            y reemplázalas con los datos de tu proyecto de Supabase (Project Settings → API).
+            Luego guarda el archivo y vuelve a subirlo.
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+  setupCalculator();
+  setupPedido();
+  await loadProducts();
+  await loadUsuarios();
+  await loadHistoryDates();
+  state.ready = true;
+  render();
+})();
+</script>
+</body>
+</html>
